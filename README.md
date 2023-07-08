@@ -15,15 +15,13 @@ import (
 )
 
 func main() {
-	otpSrv := otp.NewService()
-
-	code, secret, url, err := otpSrv.Generate(otp.TOTP, <issuer>, <username>)
+	code, secret, url, err := otp.Generate(otp.TOTP, <issuer>, <username>)
 	fmt.Println("TOTP: ", code, secret, url, err)
-    // TOTP:  <code> <secret> otpauth://totp/<issuer>:<username>?algorithm=SHA1&digits=6&issuer=<issuer>&period=30&secret=<secret> <err>
+    	// TOTP:  <code> <secret> otpauth://totp/<issuer>:<username>?algorithm=SHA1&digits=6&issuer=<issuer>&period=30&secret=<secret> <err>
 
-	code, secret, url, err = otpSrv.Generate(otp.HOTP, <issuer>, <username>, <counter>)
+	code, secret, url, err = otp.Generate(otp.HOTP, <issuer>, <username>, <counter>)
 	fmt.Println("HOTP: ", code, secret, url, err)
-    // HOTP:  <code> <secret> otpauth://hotp/<issuer>:<username>?algorithm=SHA1&digits=6&issuer=<issuer>&secret=<secret> <err>
+    	// HOTP:  <code> <secret> otpauth://hotp/<issuer>:<username>?algorithm=SHA1&digits=6&issuer=<issuer>&secret=<secret> <err>
 }
 ```
 
@@ -38,15 +36,13 @@ import (
 )
 
 func main() {
-	otpSrv := otp.NewService()
-
-	valid, err := otpSrv.Validate(otp.TOTP, <code>, <secret>)
+	valid, err := otp.Validate(otp.TOTP, <code>, <secret>)
 	fmt.Println("TOTP: ", valid, err)
-    // TOTP:  true <nil>
+    	// TOTP:  true <nil>
 
-	valid, err = otpSrv.Validate(otp.HOTP, <code>, <secret>, <counter>)
+	valid, err = otp.Validate(otp.HOTP, <code>, <secret>, <counter>)
 	fmt.Println("HOTP: ", valid, err)
-    // HOTP:  true <nil>
+    	// HOTP:  true <nil>
 }
 ```
 
