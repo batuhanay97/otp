@@ -12,36 +12,30 @@ import (
 
 var (
 	otpAdapters = make(map[util.SourceType]adapters.Adapter, 0)
-	otpSrv      = otpService.NewService()
 )
 
-func implemention(typ SourceType) {
-	switch typ {
-	case HOTP:
-		hotp := hotpAdapter.NewAdapter(otpSrv)
-		addAdapter(hotp)
-	case TOTP:
-		totp := totpAdapter.NewAdapter(otpSrv)
-		addAdapter(totp)
-	}
-}
+func setOrGetAdapter(typ util.SourceType) (adapters.Adapter, error) {
+	if _, ok := otpAdapters[typ]; !ok {
+		otpSrv := otpService.NewService()
+		switch typ {
+		case util.HOTP:
+			hotp := hotpAdapter.NewAdapter(otpSrv)
+			otpAdapters[typ] = hotp
+			return otpAdapters[typ], nil
+		case util.TOTP:
+			totp := totpAdapter.NewAdapter(otpSrv)
+			otpAdapters[typ] = totp
+			return otpAdapters[typ], nil
+		}
 
-func addAdapter(otpAdapter adapters.Adapter) {
-	if _, ok := otpAdapters[otpAdapter.SourceTyp()]; !ok {
-		otpAdapters[otpAdapter.SourceTyp()] = otpAdapter
+		return nil, errors.New("component not implemented")
 	}
-}
 
-func getAdapter(typ util.SourceType) (adapters.Adapter, error) {
-	if data, ok := otpAdapters[typ]; ok {
-		return data, nil
-	}
-	return nil, errors.New("component not implemented")
+	return otpAdapters[typ], nil
 }
 
 func Generate(provider SourceType, issuer, username string, counter ...uint64) (string, string, string, error) {
-	implemention(provider)
-	a, err := getAdapter(util.SourceType(provider))
+	a, err := setOrGetAdapter(util.SourceType(provider))
 	if err != nil {
 		return "", "", "", err
 	}
@@ -49,8 +43,7 @@ func Generate(provider SourceType, issuer, username string, counter ...uint64) (
 }
 
 func Validate(provider SourceType, code, secret string, counter ...uint64) (bool, error) {
-	implemention(provider)
-	a, err := getAdapter(util.SourceType(provider))
+	a, err := setOrGetAdapter(util.SourceType(provider))
 	if err != nil {
 		return false, err
 	}
